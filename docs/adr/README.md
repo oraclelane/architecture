@@ -1,0 +1,10 @@
+# Architecture Decision Records
+
+| ADR | Title | Status | Date |
+|---|---|---|---|
+| [0001](0001-monorepo-and-contract-first.md) | Use one implementation monorepo with contract-first boundaries | accepted | 2026-08-27 |
+| [0002](0002-hexagonal-boundaries.md) | Isolate DreamDEX and infrastructure behind ports | accepted | 2026-08-27 |
+| [0003](0003-advisory-ai-deterministic-actions.md) | Keep AI advisory and actions deterministic | accepted | 2026-08-27 |
+| [0004](0004-noncustodial-wallet.md) | Use browser wallet signing; no server custody | accepted | 2026-08-27 |
+| [0005](0005-reactivity-with-manual-fallback.md) | Use reactivity with an explicit manual settlement fallback | accepted | 2026-08-27 |
+| [0006](0006-rest-openapi-boundary.md) | Use versioned REST/OpenAPI for frontend-backend collaboration | accepted | 2026-08-27 |

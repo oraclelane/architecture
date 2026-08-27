@@ -1,0 +1,205 @@
+openapi: 3.1.0
+info:
+  title: Oraclelane API
+  version: 1.0.0
+  description: Task-oriented API for DreamDEX Event Contract discovery, thesis, trade preparation, and settlement projections.
+servers:
+  - url: https://api.oraclelane.app/api/v1
+paths:
+  /markets:
+    get:
+      operationId: listMarkets
+      parameters:
+        - {name: chainId, in: query, required: true, schema: {type: integer, enum: [50312, 50313, 5031]}}
+        - {name: status, in: query, schema: {type: string, enum: [OPEN, PAUSED, LOCKED, RESOLVED, VOID]}}
+        - {name: cursor, in: query, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 50, default: 20}}
+      responses:
+        '200': {description: Market list, content: {application/json: {schema: {$ref: '#/components/schemas/MarketListResponse'}}}}
+        '422': {$ref: '#/components/responses/ValidationError'}
+        '503': {$ref: '#/components/responses/UpstreamUnavailable'}
+  /markets/{marketId}:
+    get:
+      operationId: getMarket
+      parameters:
+        - {name: marketId, in: path, required: true, schema: {type: string}}
+        - {name: chainId, in: query, required: true, schema: {type: integer}}
+      responses:
+        '200': {description: Market, content: {application/json: {schema: {$ref: '#/components/schemas/MarketResponse'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /theses:
+    post:
+      operationId: createThesis
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ThesisRequest'}}}}
+      responses:
+        '201': {description: Thesis, content: {application/json: {schema: {$ref: '#/components/schemas/ThesisResponse'}}}}
+        '422': {$ref: '#/components/responses/ValidationError'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /trade-previews:
+    post:
+      operationId: createTradePreview
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TradePreviewRequest'}}}}
+      responses:
+        '200': {description: Trade preview, content: {application/json: {schema: {$ref: '#/components/schemas/TradePreviewResponse'}}}}
+        '409': {$ref: '#/components/responses/StateConflict'}
+        '422': {$ref: '#/components/responses/ValidationError'}
+  /transactions/observations:
+    post:
+      operationId: observeTransaction
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TransactionObservationRequest'}}}}
+      responses:
+        '202': {description: Observation accepted, content: {application/json: {schema: {$ref: '#/components/schemas/TransactionObservationResponse'}}}}
+  /positions:
+    get:
+      operationId: listPositions
+      parameters:
+        - {name: owner, in: query, required: true, schema: {type: string, pattern: '^0x[a-fA-F0-9]{40}$'}}
+        - {name: chainId, in: query, required: true, schema: {type: integer}}
+        - {name: cursor, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Position list, content: {application/json: {schema: {$ref: '#/components/schemas/PositionListResponse'}}}}
+  /positions/{positionId}/redeem-intents:
+    post:
+      operationId: createRedeemIntent
+      parameters: [{name: positionId, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RedeemIntentRequest'}}}}
+      responses:
+        '201': {description: EIP-712 intent, content: {application/json: {schema: {$ref: '#/components/schemas/RedeemIntentResponse'}}}}
+        '409': {$ref: '#/components/responses/StateConflict'}
+  /health:
+    get:
+      operationId: health
+      responses: {'200': {description: Healthy, content: {application/json: {schema: {$ref: '#/components/schemas/HealthResponse'}}}}}
+components:
+  schemas:
+    Market:
+      type: object
+      required: [marketId, chainId, question, status, outcomes, closeAt, observedAt, freshness]
+      properties:
+        marketId: {type: string}
+        chainId: {type: integer}
+        question: {type: string}
+        status: {type: string, enum: [OPEN, PAUSED, LOCKED, RESOLVED, VOID]}
+        outcomes: {type: array, items: {$ref: '#/components/schemas/Outcome'}}
+        closeAt: {type: string, format: date-time}
+        observedAt: {type: string, format: date-time}
+        freshness: {type: string, enum: [FRESH, STALE, UNKNOWN]}
+    Outcome:
+      type: object
+      required: [index, label, price, tokenAddress]
+      properties:
+        index: {type: integer, minimum: 0}
+        label: {type: string}
+        price: {type: string, description: Decimal string; never use binary floating point for settlement math.}
+        tokenAddress: {type: string}
+    MarketListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data: {type: array, items: {$ref: '#/components/schemas/Market'}}
+        meta: {$ref: '#/components/schemas/PageMeta'}
+    MarketResponse: {type: object, required: [data], properties: {data: {$ref: '#/components/schemas/Market'}}}
+    ThesisRequest:
+      type: object
+      required: [marketId, chainId]
+      properties:
+        marketId: {type: string}
+        chainId: {type: integer}
+        maxAgeSeconds: {type: integer, minimum: 30, maximum: 3600, default: 300}
+    Thesis:
+      type: object
+      required: [thesisId, direction, confidenceBand, summary, evidence, generatedAt, expiresAt, modelVersion]
+      properties:
+        thesisId: {type: string}
+        direction: {type: string, enum: [UP, DOWN, NO_TRADE]}
+        confidenceBand: {type: string, enum: [LOW, MEDIUM, HIGH]}
+        summary: {type: string, maxLength: 1200}
+        evidence: {type: array, items: {$ref: '#/components/schemas/Evidence'}}
+        generatedAt: {type: string, format: date-time}
+        expiresAt: {type: string, format: date-time}
+        modelVersion: {type: string}
+    Evidence:
+      type: object
+      required: [sourceId, title, url, publishedAt, relevance]
+      properties:
+        sourceId: {type: string}
+        title: {type: string}
+        url: {type: string, format: uri}
+        publishedAt: {type: string, format: date-time}
+        relevance: {type: string, enum: [PRIMARY, SECONDARY, MARKET_DATA]}
+    ThesisResponse: {type: object, required: [data], properties: {data: {$ref: '#/components/schemas/Thesis'}}}
+    TradePreviewRequest:
+      type: object
+      required: [owner, marketId, chainId, outcomeIndex, amount]
+      properties:
+        owner: {type: string, pattern: '^0x[a-fA-F0-9]{40}$'}
+        marketId: {type: string}
+        chainId: {type: integer}
+        outcomeIndex: {type: integer, minimum: 0, maximum: 1}
+        amount: {type: string, pattern: '^[0-9]+$'}
+        maxSlippageBps: {type: integer, minimum: 0, maximum: 500}
+    SafetyDecision:
+      type: object
+      required: [decision, checks]
+      properties:
+        decision: {type: string, enum: [ALLOW, WARN, BLOCK]}
+        checks: {type: array, items: {type: object, required: [code, passed], properties: {code: {type: string}, passed: {type: boolean}, message: {type: string}}}}
+    TradePreview:
+      type: object
+      required: [previewId, marketVersion, amount, safety, expiresAt, transaction]
+      properties:
+        previewId: {type: string}
+        marketVersion: {type: string}
+        amount: {type: string}
+        safety: {$ref: '#/components/schemas/SafetyDecision'}
+        expiresAt: {type: string, format: date-time}
+        transaction: {type: object, required: [to, data, value, chainId], properties: {to: {type: string}, data: {type: string}, value: {type: string}, chainId: {type: integer}}}
+    TradePreviewResponse: {type: object, required: [data], properties: {data: {$ref: '#/components/schemas/TradePreview'}}}
+    TransactionObservationRequest:
+      type: object
+      required: [owner, chainId, txHash, previewId]
+      properties:
+        owner: {type: string}
+        chainId: {type: integer}
+        txHash: {type: string}
+        previewId: {type: string}
+    TransactionObservationResponse: {type: object, required: [data], properties: {data: {type: object, required: [observationId, status], properties: {observationId: {type: string}, status: {type: string, enum: [PENDING, CONFIRMED, FAILED]}}}}}
+    Position:
+      type: object
+      required: [positionId, owner, marketId, outcomeIndex, amount, status]
+      properties:
+        positionId: {type: string}
+        owner: {type: string}
+        marketId: {type: string}
+        outcomeIndex: {type: integer}
+        amount: {type: string}
+        status: {type: string, enum: [PENDING, OPEN, LOCKED, FINALIZED, VOID, REDEEM_INTENT, REDEEM_SUBMITTED, REDEEMED, MANUAL_ACTION_REQUIRED]}
+        txHash: {type: [string, 'null']}
+        winningOutcome: {type: [integer, 'null']}
+    PositionListResponse: {type: object, required: [data, meta], properties: {data: {type: array, items: {$ref: '#/components/schemas/Position'}}, meta: {$ref: '#/components/schemas/PageMeta'}}}
+    RedeemIntentRequest:
+      type: object
+      required: [deadline]
+      properties: {deadline: {type: string, format: date-time}}
+    RedeemIntentResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {type: object, required: [intentId, typedData, status], properties: {intentId: {type: string}, status: {type: string, enum: [AWAITING_SIGNATURE, SIGNED, EXPIRED]}, typedData: {type: object, additionalProperties: true}}}
+    PageMeta:
+      type: object
+      required: [hasNext]
+      properties: {hasNext: {type: boolean}, nextCursor: {type: [string, 'null']}}
+    HealthResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: object, required: [status, version], properties: {status: {type: string, enum: [ok, degraded]}, version: {type: string}, releaseSha: {type: string}}}}
+  responses:
+    ValidationError: {description: Validation error, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    NotFound: {description: Not found, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    StateConflict: {description: State conflict, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    RateLimited: {description: Rate limited, headers: {Retry-After: {schema: {type: integer}}}, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    UpstreamUnavailable: {description: Upstream unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    ErrorResponse:
+      description: Error envelope
+      content: {application/json: {schema: {type: object, required: [error], properties: {error: {type: object, required: [code, message], properties: {code: {type: string}, message: {type: string}, details: {type: array, items: {type: object}}}}}}}}
