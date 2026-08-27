@@ -40,6 +40,10 @@ This repository explains *how the system is built*. Product intent, UX rationale
 | [Architecture sign-off](docs/16-architecture-signoff.md) | Decision closure and implementation gate |
 | [Contract freeze](docs/17-contract-freeze.md) | UI/backend boundary freeze and change protocol |
 | [UI/UX design brief](docs/18-ui-ux-design-brief.md) | Design inputs, states, and handoff requirements |
+| [Information architecture](docs/19-information-architecture.md) | Navigation, hierarchy, and task flows |
+| [Design system](docs/20-design-system.md) | Tokens, components, accessibility, and motion |
+| [Screen handoff](docs/21-screen-handoff.md) | Screen-by-screen implementation specification |
+| [UX copy and states](docs/22-ux-copy-and-states.md) | Content rules and state matrix |
 | [ADR index](docs/adr/README.md) | Decisions and rejected alternatives |
 
 ## Contract-first rule
