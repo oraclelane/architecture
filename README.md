@@ -37,6 +37,9 @@ This repository explains *how the system is built*. Product intent, UX rationale
 | [Observability](docs/13-observability.md) | Metrics, logs, traces, and judge-visible proof |
 | [Failure recovery](docs/14-failure-and-recovery.md) | Failure matrix, retries, and operator runbook |
 | [Implementation mapping](docs/15-implementation-mapping.md) | Architecture-to-code backlog and done criteria |
+| [Architecture sign-off](docs/16-architecture-signoff.md) | Decision closure and implementation gate |
+| [Contract freeze](docs/17-contract-freeze.md) | UI/backend boundary freeze and change protocol |
+| [UI/UX design brief](docs/18-ui-ux-design-brief.md) | Design inputs, states, and handoff requirements |
 | [ADR index](docs/adr/README.md) | Decisions and rejected alternatives |
 
 ## Contract-first rule
