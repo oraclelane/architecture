@@ -25,22 +25,36 @@ Market and position IDs remain URL-safe opaque strings. Wallet signature payload
 ```text
 <AppProviders>
   <ThemeProvider>
-    <WalletProvider>
+    <WagmiProvider>
       <QueryProvider>
-        <AppShell>
-          <GlobalHeader />
-          <NetworkBanner />
-          <PageContainer />
-          <ActivityRail />
-          <Toaster />
-        </AppShell>
+        <RainbowKitProvider>
+          <AppShell>
+            <GlobalHeader />
+            <NetworkBanner />
+            <PageContainer />
+            <ActivityRail />
+            <Toaster />
+          </AppShell>
+        </RainbowKitProvider>
       </QueryProvider>
-    </WalletProvider>
+    </WagmiProvider>
   </ThemeProvider>
 </AppProviders>
 ```
 
 The shell owns theme, wallet connection, query cache, and global announcements. Feature pages own feature state; no global store should mirror the entire API cache.
+
+## Wallet stack responsibilities
+
+| Library | Responsibility | Boundary rule |
+|---|---|---|
+| RainbowKit | wallet connect modal, connector discovery, account/network UX | presentation only; no trade policy |
+| wagmi | React hooks, wallet/account/chain state, transaction lifecycle, query integration | client boundary; expose typed actions to feature components |
+| viem | chain definitions, public/wallet clients, ABI calldata, EIP-712 typed-data encoding, receipt reads | protocol boundary; preserve bigint/string precision and verified chain config |
+
+`WagmiProvider` and `QueryClientProvider` are configured beneath the app theme and above feature routes; `RainbowKitProvider` wraps the wallet UI. The exact provider nesting may follow the selected RainbowKit/wagmi version, but the responsibilities must remain separated.
+
+Use viem's chain configuration for Shannon/Elwood/mainnet only after the environment allowlist is verified. UI labels come from the active chain config, never from user input. Do not mix a second ethers/web3 client into the app.
 
 ## Component hierarchy
 
@@ -137,6 +151,16 @@ web -> POST /trade-previews -> display exact fields -> wallet.request()
 web -> POST /transactions/observations(txHash) -> projection polling
 web -> POST /redeem-intents -> wallet.signTypedData() -> bounded submit path
 ```
+
+The planned client APIs map to the stack as follows:
+
+- `useConnect`, `useAccount`, and `useChainId` for connection and network state;
+- `useSwitchChain` for an explicit wrong-chain recovery action;
+- `useSendTransaction` (or the version-equivalent wagmi mutation) for a trade preview transaction;
+- `useSignTypedData` for owner-approved redeem authorization;
+- viem public-client reads/watches for receipt and finality display, with the API projection remaining the lifecycle authority.
+
+Names are version-sensitive implementation details; the contract and trust boundary are stable. Pin compatible library versions together in the future app lockfile and test upgrades as one wallet-stack change.
 
 The frontend may display and submit a wallet-created transaction. It cannot edit calldata, alter safety checks, or bypass a `BLOCK` result. Unknown transaction receipts are reconciled by hash before any retry.
 
