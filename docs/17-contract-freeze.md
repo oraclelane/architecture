@@ -4,6 +4,8 @@
 **Contract version:** `api/v1` baseline  
 **Authority:** [`docs/contracts/oraclelane.openapi.yaml`](contracts/oraclelane.openapi.yaml)
 
+This is a **design-input freeze**: the stable shapes are sufficient to produce Figma and contract-valid frontend mocks. It is not an integration freeze until the blockers in [frontend implementation spec](23-frontend-implementation-spec.md#contract-blockers-before-implementation) are resolved.
+
 ## What is frozen
 
 The following shapes are stable inputs for UI/UX and frontend slicing:
