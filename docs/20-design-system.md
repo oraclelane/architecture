@@ -1,5 +1,7 @@
 # 20. Oraclelane design system
 
+> **✅ Canonical token source.** This is the token set actually used by the Figma design system and generated screens. Root `DESIGN.md` and `blueprint/docs/16-ux-design-system.md` predate this build and define different (blue-primary / green-primary) palettes — both are now marked superseded and point back here. If code and this doc ever disagree, treat this file as the source of truth for tokens, per its own framing below.
+
 Oraclelane uses the **shadcn/ui neutral design system** as its visual foundation. The CSS variables below are the canonical tokens for Figma and the future frontend. Oraclelane does not introduce a separate brand palette at this stage; product semantics are expressed through shadcn semantic tokens and documented component variants.
 
 ## Canonical shadcn tokens

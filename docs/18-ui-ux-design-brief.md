@@ -18,6 +18,8 @@ The design should make the trust model visible: what came from chain data, what 
 6. Position Timeline: pending/open/locked/finalized/redeemed states with tx links.
 7. Settlement: winning outcome or void state, auto-redeem progress, manual fallback CTA.
 
+**Note:** the built Figma design also includes a Landing screen and a Settings screen (risk preferences, authorizations, network info), carried over from `blueprint/docs/17-information-architecture-and-wireframes.md`'s IA. It also consolidates Case File, Thesis Panel, and Safety Gate into one screen with in-page sections — `19-information-architecture.md` defines no separate route for thesis or safety-gate, and neither does blueprint's IA, so these read as sections of the Case File page rather than distinct screens. Wallet Drawer = the Trade Review Sheet (desktop) / Drawer (mobile) opened from Case File. Settlement = result states within Position Timeline rather than its own screen.
+
 ## State coverage
 
 For each screen provide desktop/mobile variants and loading, empty, stale, unavailable, blocked, pending, success, failure, and wallet-rejected states. Do not hide uncertainty behind a spinner or generic “something went wrong” message.

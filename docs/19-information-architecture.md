@@ -51,3 +51,7 @@ The app has one primary job: help a user understand and safely act on an existin
 - `/help/trust`
 
 Filters, selected outcome, and amount are URL-safe local state; wallet signatures and transaction data are never placed in query strings.
+
+## Reconciliation with blueprint's IA
+
+`blueprint/docs/17-information-architecture-and-wireframes.md` defines an overlapping but not identical IA: it adds a `/` landing route (product explanation before wallet connect) and a `/settings` route (risk preferences and authorizations) that this document omits, and uses `/markets` where this document uses `/radar`. The actual Figma design merges both: this document's screen structure and route shape as the backbone, plus blueprint's `/` and `/settings` additions. Treat the merged set — `/`, `/radar`, `/markets/:chainId/:marketId`, `/positions`, `/positions/:positionId`, `/settings`, `/help/trust` — as current until this document and blueprint's are fully unified.
