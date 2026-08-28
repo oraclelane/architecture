@@ -47,7 +47,7 @@ The main area contains:
 4. Market rows that expose the exact question, UP/DOWN prices, status, freshness, close time, observed time, and `Read case file` action.
 5. The existing typed-boundary note led by `Read path is typed.`
 
-The primary desktop representation is a bordered market table/list. It must not become a card grid, bento layout, or marketing hero.
+The primary desktop representation is a semantic market list styled as a bordered table. Each market remains one list item at every breakpoint, while its internal facts reflow responsively. It must not become a card grid, bento layout, or marketing hero.
 
 ## Figma foundation
 
@@ -146,8 +146,8 @@ Borders are 1px. Elevation is minimal and must not turn rows or sections into fl
 - `FilterSheet`: mobile presentation of the same filter state and controls.
 - `RadarSurface`: owns interactive filter, sort, refresh, loading, and error state.
 - `RadarHeader`: panel title, freshness timestamp, and refresh control.
-- `MarketTable`: semantic list/table container and empty state.
-- `MarketRow`: one typed market record with outcomes and operational facts.
+- `MarketList`: semantic list container and empty state, styled as a table on desktop.
+- `MarketRow`: one typed list item with outcomes and operational facts.
 - `TypedBoundaryNote`: existing contract-first explanation.
 
 Shared controls continue to use the existing button, badge, separator, and skeleton primitives when their semantics match. Differences should be explicit variants rather than copied markup.
@@ -157,7 +157,7 @@ Shared controls continue to use the existing button, badge, separator, and skele
 1. The `/radar` server route obtains the initial `MarketListResponse` through `listMarkets`.
 2. It passes typed market data to `RadarSurface`.
 3. Asset, status, and sort controls update local UI state without mutating the fixture.
-4. Asset filtering matches the market question or future explicit asset field. `All` restores the complete response.
+4. Asset filtering uses an `inferMarketAsset(question)` helper that recognizes the word-boundary symbols `BTC` and `ETH`; unmatched questions are classified as `OTHER`. `All` restores the complete response. A future explicit API asset field may replace only this helper.
 5. `Reset filters` restores `All`, `Open`, and `Close time`.
 6. `Refresh` invokes the same typed fetcher, replaces the local response with a new immutable result, and updates the visible UTC freshness timestamp.
 7. A refresh failure preserves the last successful data, exposes an inline user-readable error, and announces it through an accessible live region.
@@ -192,7 +192,7 @@ Light and dark themes use the exact Figma token values. Theme selection remains 
 
 ## Accessibility
 
-- Header and filter navigation use distinct accessible landmarks.
+- The header navigation uses a `nav` landmark. The desktop filter rail uses an `aside` containing a form labelled `Market filters`; it is not a second navigation landmark.
 - Selected routes use `aria-current="page"`.
 - Filter groups have visible labels and keyboard-operable controls.
 - The mobile sheet traps focus while open, closes with Escape, and restores focus to its trigger.
@@ -219,6 +219,7 @@ Light and dark themes use the exact Figma token values. Theme selection remains 
 - Refresh success replaces data immutably.
 - Refresh failure preserves prior data and announces the error.
 - Desktop filter rail and mobile filter sheet share state.
+- Market results remain one semantic list across responsive layouts.
 - Market rows retain decimal prices as strings.
 - Keyboard navigation and mobile-sheet focus restoration work.
 
