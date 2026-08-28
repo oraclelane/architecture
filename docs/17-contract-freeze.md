@@ -4,7 +4,7 @@
 **Contract version:** `api/v1` baseline  
 **Authority:** [`docs/contracts/oraclelane.openapi.yaml`](contracts/oraclelane.openapi.yaml)
 
-This is a **design-input freeze**: the stable shapes are sufficient to produce Figma and contract-valid frontend mocks. It is not an integration freeze until the blockers in [frontend implementation spec](23-frontend-implementation-spec.md#contract-blockers-before-implementation) are resolved.
+This is a **design-input freeze** and now includes the resolved owner session, position detail, and signed redeem boundaries. The provider and consumer must still add contract tests for these paths before integration work is considered complete.
 
 ## What is frozen
 

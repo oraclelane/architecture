@@ -18,6 +18,8 @@ Typed-data domain and struct must be generated from the active chain and deploye
 
 The owner signs the typed data in the wallet. Oraclelane may submit the bounded redemption transaction only after signature validation and replay checks. It never creates an unbounded operator permission.
 
+The public API sequence is `create redeem intent → browser signs via wagmi/viem → submit signature → worker queues bounded operator submission → position projection exposes status`. The operator receives only the bounded intent and owner signature required for that redemption; it has no authority to create a new market action.
+
 ## Reactivity posture
 
 Reactivity is an optimization and hackathon proof, not the only settlement path. The worker must support:

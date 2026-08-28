@@ -9,6 +9,8 @@
 5. Browser sends only the transaction hash to the API.
 6. Worker/API observes receipt and events; projection moves from `PENDING` to `OPEN` or `FAILED`.
 
+Wallet sessions use a one-time API challenge signed by the owner. Every owner-scoped mutation requires the resulting expiring bearer session and checks that the session address matches the resource owner.
+
 ## Deterministic safety gate
 
 All must pass for `ALLOW`:

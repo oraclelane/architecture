@@ -164,16 +164,18 @@ Names are version-sensitive implementation details; the contract and trust bound
 
 The frontend may display and submit a wallet-created transaction. It cannot edit calldata, alter safety checks, or bypass a `BLOCK` result. Unknown transaction receipts are reconciled by hash before any retry.
 
-## Contract blockers before implementation
+## Contract blocker closure
 
-The following items are intentionally recorded rather than guessed. Frontend slicing can proceed with mocks, but the `app` repository must not be considered integration-ready until each item is resolved in the OpenAPI contract and an ADR if the trust boundary changes.
+The four pre-implementation blockers are now resolved in the API contract and ADR-008:
 
-| Blocker | Required resolution |
+| Former blocker | Resolution |
 |---|---|
-| Position detail path | Add and validate `GET /positions/{positionId}` with owner/chain authorization semantics, or remove the route dependency. |
-| Signed redeem submission | Define whether the browser submits directly or sends the owner signature to a bounded operator. Add the required request/observation contract. |
-| Owner authentication | Specify wallet nonce challenge/session transport, address matching, expiry, and replay protection for owner-scoped endpoints. |
-| Contract route parity | Keep `/radar` and `/markets/...` as UI routes while API remains `/markets`; document any redirect or cache-key behavior. |
+| Position detail path | `GET /positions/{positionId}` is owner-session protected and chain-scoped. |
+| Signed redeem submission | Browser signs the bounded intent; `POST /redeem-intents/{intentId}/signature` validates and queues the operator/worker. |
+| Owner authentication | One-time wallet challenge, expiring opaque bearer session, address matching, and replay protection are required. |
+| Contract route parity | `/radar` and `/markets/...` remain UI routes; `/markets` remains the API resource. Landing/settings stay deferred. |
+
+Implementation may begin only after the provider and consumer tests cover these additions.
 
 ## Error and loading composition
 

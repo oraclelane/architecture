@@ -6,6 +6,20 @@ info:
 servers:
   - url: https://api.oraclelane.app/api/v1
 paths:
+  /auth/challenges:
+    post:
+      operationId: createWalletChallenge
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WalletChallengeRequest'}}}}
+      responses:
+        '201': {description: Wallet challenge, content: {application/json: {schema: {$ref: '#/components/schemas/WalletChallengeResponse'}}}}
+        '422': {$ref: '#/components/responses/ValidationError'}
+  /auth/sessions:
+    post:
+      operationId: createWalletSession
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WalletSessionRequest'}}}}
+      responses:
+        '200': {description: Wallet session, content: {application/json: {schema: {$ref: '#/components/schemas/WalletSessionResponse'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
   /markets:
     get:
       operationId: listMarkets
@@ -38,6 +52,7 @@ paths:
   /trade-previews:
     post:
       operationId: createTradePreview
+      security: [{bearerAuth: []}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TradePreviewRequest'}}}}
       responses:
         '200': {description: Trade preview, content: {application/json: {schema: {$ref: '#/components/schemas/TradePreviewResponse'}}}}
@@ -46,32 +61,87 @@ paths:
   /transactions/observations:
     post:
       operationId: observeTransaction
+      security: [{bearerAuth: []}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TransactionObservationRequest'}}}}
       responses:
         '202': {description: Observation accepted, content: {application/json: {schema: {$ref: '#/components/schemas/TransactionObservationResponse'}}}}
   /positions:
     get:
       operationId: listPositions
+      security: [{bearerAuth: []}]
       parameters:
         - {name: owner, in: query, required: true, schema: {type: string, pattern: '^0x[a-fA-F0-9]{40}$'}}
         - {name: chainId, in: query, required: true, schema: {type: integer}}
         - {name: cursor, in: query, schema: {type: string}}
       responses:
         '200': {description: Position list, content: {application/json: {schema: {$ref: '#/components/schemas/PositionListResponse'}}}}
+  /positions/{positionId}:
+    get:
+      operationId: getPosition
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: positionId, in: path, required: true, schema: {type: string}}
+        - {name: chainId, in: query, required: true, schema: {type: integer}}
+      responses:
+        '200': {description: Position detail, content: {application/json: {schema: {$ref: '#/components/schemas/PositionResponse'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
   /positions/{positionId}/redeem-intents:
     post:
       operationId: createRedeemIntent
+      security: [{bearerAuth: []}]
       parameters: [{name: positionId, in: path, required: true, schema: {type: string}}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RedeemIntentRequest'}}}}
       responses:
         '201': {description: EIP-712 intent, content: {application/json: {schema: {$ref: '#/components/schemas/RedeemIntentResponse'}}}}
         '409': {$ref: '#/components/responses/StateConflict'}
+  /redeem-intents/{intentId}/signature:
+    post:
+      operationId: submitRedeemSignature
+      security: [{bearerAuth: []}]
+      parameters: [{name: intentId, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RedeemSignatureRequest'}}}}
+      responses:
+        '202': {description: Signature accepted and redemption queued, content: {application/json: {schema: {$ref: '#/components/schemas/RedeemSignatureResponse'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '409': {$ref: '#/components/responses/StateConflict'}
+        '422': {$ref: '#/components/responses/ValidationError'}
   /health:
     get:
       operationId: health
       responses: {'200': {description: Healthy, content: {application/json: {schema: {$ref: '#/components/schemas/HealthResponse'}}}}}
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque-wallet-session
   schemas:
+    WalletChallengeRequest:
+      type: object
+      required: [address, chainId]
+      properties:
+        address: {type: string, pattern: '^0x[a-fA-F0-9]{40}$'}
+        chainId: {type: integer, enum: [50312, 50313, 5031]}
+    WalletChallengeResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {type: object, required: [challengeId, nonce, message, expiresAt], properties: {challengeId: {type: string}, nonce: {type: string}, message: {type: string}, expiresAt: {type: string, format: date-time}}}
+    WalletSessionRequest:
+      type: object
+      required: [address, chainId, challengeId, signature]
+      properties:
+        address: {type: string, pattern: '^0x[a-fA-F0-9]{40}$'}
+        chainId: {type: integer}
+        challengeId: {type: string}
+        signature: {type: string}
+    WalletSessionResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {type: object, required: [accessToken, address, chainId, expiresAt], properties: {accessToken: {type: string}, address: {type: string}, chainId: {type: integer}, expiresAt: {type: string, format: date-time}}}
     Market:
       type: object
       required: [marketId, chainId, question, status, outcomes, closeAt, observedAt, freshness]
@@ -177,6 +247,7 @@ components:
         txHash: {type: [string, 'null']}
         winningOutcome: {type: [integer, 'null']}
     PositionListResponse: {type: object, required: [data, meta], properties: {data: {type: array, items: {$ref: '#/components/schemas/Position'}}, meta: {$ref: '#/components/schemas/PageMeta'}}}
+    PositionResponse: {type: object, required: [data], properties: {data: {$ref: '#/components/schemas/Position'}}}
     RedeemIntentRequest:
       type: object
       required: [deadline]
@@ -186,6 +257,17 @@ components:
       required: [data]
       properties:
         data: {type: object, required: [intentId, typedData, status], properties: {intentId: {type: string}, status: {type: string, enum: [AWAITING_SIGNATURE, SIGNED, EXPIRED]}, typedData: {type: object, additionalProperties: true}}}
+    RedeemSignatureRequest:
+      type: object
+      required: [owner, signature]
+      properties:
+        owner: {type: string, pattern: '^0x[a-fA-F0-9]{40}$'}
+        signature: {type: string, description: Owner EIP-712 signature; never log or expose after validation.}
+    RedeemSignatureResponse:
+      type: object
+      required: [data]
+      properties:
+        data: {type: object, required: [intentId, status], properties: {intentId: {type: string}, status: {type: string, enum: [SIGNED, SUBMISSION_QUEUED, SUBMITTED, CONFIRMED, FAILED, MANUAL_ACTION_REQUIRED]}, txHash: {type: [string, 'null']}}}
     PageMeta:
       type: object
       required: [hasNext]
@@ -197,6 +279,8 @@ components:
   responses:
     ValidationError: {description: Validation error, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: Not found, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Unauthorized: {description: Missing or invalid wallet session, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    Forbidden: {description: Wallet session does not own this resource, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     StateConflict: {description: State conflict, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     RateLimited: {description: Rate limited, headers: {Retry-After: {schema: {type: integer}}}, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     UpstreamUnavailable: {description: Upstream unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
