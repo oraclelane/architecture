@@ -11,7 +11,7 @@ The design should make the trust model visible: what came from chain data, what 
 ## Required screens
 
 1. Market Radar: filterable BTC/ETH markets, price, close time, freshness, liquidity signal.
-2. Case File: exact question/terms, outcomes, close/lock timing, source freshness, trading CTA.
+2. Case File: exact question/terms, outcomes, close/lock timing, source freshness, and a next-step control; the eventual trading CTA remains deferred until the thesis, safety, and wallet slices are complete.
 3. Thesis Panel: direction, confidence band, concise rationale, evidence list, timestamp, expiry, “not financial advice” copy.
 4. Safety Gate: passed/failed checks, amount/slippage inputs, blocked reason, re-quote action.
 5. Wallet Drawer: chain, contract, outcome, amount, expiry, simulation/allowance status, sign button.

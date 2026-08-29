@@ -46,6 +46,7 @@ This repository explains *how the system is built*. Product intent, UX rationale
 | [UX copy and states](docs/22-ux-copy-and-states.md) | Content rules and state matrix |
 | [Frontend implementation spec](docs/23-frontend-implementation-spec.md) | Routes, components, state, data, and wallet boundaries |
 | [Frontend slicing plan](docs/24-frontend-slicing-plan.md) | Ordered slices, dependencies, and acceptance gates |
+| [Market Case File design](docs/25-market-case-file-design.md) | Slice 1 product intent, UX anatomy, contract readiness, states, and handoff gates |
 | [ADR index](docs/adr/README.md) | Decisions and rejected alternatives |
 
 ## Contract-first rule
