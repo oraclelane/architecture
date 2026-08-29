@@ -299,3 +299,9 @@ Before frontend implementation begins:
 6. Prepare the judge-facing demo script and evidence of the DreamDEX integration.
 
 The implementation should start only after these gates pass. This keeps the Case File useful as a standalone product surface while preserving the contract-first discipline of Oraclelane.
+
+## Related documents
+
+- [Frontend slicing plan](24-frontend-slicing-plan.md)
+- [Market Case File wireframe handoff](26-market-case-file-wireframe-handoff.md)
+- [ADR-0009: dedicated detail contract](adr/0009-market-case-file-detail-contract.md)

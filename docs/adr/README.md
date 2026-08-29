@@ -10,3 +10,4 @@
 | [0006](0006-rest-openapi-boundary.md) | Use versioned REST/OpenAPI for frontend-backend collaboration | accepted | 2026-08-27 |
 | [0007](0007-rainbowkit-wagmi-viem-wallet-stack.md) | Use RainbowKit, wagmi, and viem for wallet UX and chain access | accepted | 2026-08-28 |
 | [0008](0008-wallet-session-and-redeem-operator-boundary.md) | Use wallet sessions and bounded operator submission for redeem | accepted | 2026-08-28 |
+| [0009](0009-market-case-file-detail-contract.md) | Use a dedicated detail contract for Market Case File data | proposed | 2026-08-30 |
