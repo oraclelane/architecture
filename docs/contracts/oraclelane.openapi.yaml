@@ -276,6 +276,17 @@ components:
       type: object
       required: [data]
       properties: {data: {type: object, required: [status, version], properties: {status: {type: string, enum: [ok, degraded]}, version: {type: string}, releaseSha: {type: string}}}}
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: {type: string}
+            message: {type: string}
+            details: {type: array, items: {type: object}}
   responses:
     ValidationError: {description: Validation error, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     NotFound: {description: Not found, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
@@ -284,6 +295,3 @@ components:
     StateConflict: {description: State conflict, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     RateLimited: {description: Rate limited, headers: {Retry-After: {schema: {type: integer}}}, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     UpstreamUnavailable: {description: Upstream unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
-    ErrorResponse:
-      description: Error envelope
-      content: {application/json: {schema: {type: object, required: [error], properties: {error: {type: object, required: [code, message], properties: {code: {type: string}, message: {type: string}, details: {type: array, items: {type: object}}}}}}}}
