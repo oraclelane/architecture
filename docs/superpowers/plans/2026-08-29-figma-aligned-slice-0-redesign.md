@@ -1070,7 +1070,7 @@ function MarketRow({ market }: Readonly<{ market: Market }>) {
         <div><dt>Close time</dt><dd>{formatUtcDateTime(market.closeAt)}</dd></div>
         <div><dt>Observed</dt><dd>{formatUtcDateTime(market.observedAt)}</dd></div>
       </dl>
-      <Button disabled title="Case files arrive in Slice 2" variant="secondary">Read case file</Button>
+      <Button disabled title="Case files arrive in Slice 1" variant="secondary">Read case file</Button>
     </li>
   );
 }
@@ -1585,7 +1585,7 @@ Verify:
 - Refresh disables only itself and preserves the existing market row.
 - A mocked refresh success replaces the response.
 - A mocked refresh error keeps the previous row and exposes the safe live-region message.
-- `Read case file` remains disabled with the Slice 2 explanation.
+- `Read case file` remains disabled with the Slice 1 explanation.
 
 - [ ] **Step 8: Inspect runtime quality**
 

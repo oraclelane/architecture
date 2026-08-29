@@ -2,29 +2,21 @@
 
 Slices are ordered vertical increments. Each slice can be reviewed and demoed independently using contract-valid fixtures. No slice begins by inventing API fields.
 
-## Slice 0 — foundation
+## Slice 0 — foundation + radar preview
 
-**Scope:** app shell, shadcn theme, routing, typography, `ThemeProvider`, error/loading boundaries, generated API type pipeline, mock server, and test harness.
+**Scope:** app shell, shadcn theme, routing, typography, `ThemeProvider`, error/loading boundaries, generated API type pipeline, mock server, test harness, and the first `/radar` preview with responsive filters, refresh behavior, market cards, freshness/status badges, and skeleton/empty/stale/error states.
 
-**Exit gate:** both themes render; keyboard navigation works; one fixture renders through the typed fetcher; CI runs lint/typecheck/unit tests.
+**Exit gate:** both themes render; keyboard navigation works; one market fixture renders through the typed fetcher; `market-open-fresh`, `market-stale`, and `market-locked` fixtures render correctly; stale/locked cards have no trade CTA; responsive filter/refresh interactions work; CI runs lint/typecheck/unit tests.
 
-## Slice 1 — Market Radar
+## Slice 1 — Market Case File
 
-**Scope:** `/radar`, filters, market cards, freshness/status badges, skeleton/empty/stale/error states, and navigation to a case file.
-
-**Contract:** `GET /markets`.
-
-**Exit gate:** `market-open-fresh`, `market-stale`, and `market-locked` fixtures render correctly; stale/locked cards have no trade CTA.
-
-## Slice 2 — Market Case File
-
-**Scope:** terms, outcomes, price display, close/lock timing, evidence section, and refresh behavior.
+**Scope:** market case file route, terms, outcomes, price display, close/lock timing, evidence section, and refresh behavior.
 
 **Contract:** `GET /markets/{marketId}`.
 
 **Exit gate:** exact market question/terms are visible; IDs/amounts preserve string precision; unavailable data is explicit.
 
-## Slice 3 — Thesis Panel
+## Slice 2 — Thesis Panel
 
 **Scope:** request action, loading, validated direction/confidence, drivers/risks, citations, expiry, `NO_TRADE`, and unavailable/rejected states.
 
@@ -32,7 +24,7 @@ Slices are ordered vertical increments. Each slice can be reviewed and demoed in
 
 **Exit gate:** thesis cannot render an unknown citation; expired thesis is visibly unusable for preview; no-trade remains a valid state.
 
-## Slice 4 — Safety Gate and Trade Drawer
+## Slice 3 — Safety Gate and Trade Drawer
 
 **Scope:** amount/outcome controls, deterministic checks, allow/warn/block presentation, quote expiry, and re-quote flow.
 
@@ -40,7 +32,7 @@ Slices are ordered vertical increments. Each slice can be reviewed and demoed in
 
 **Exit gate:** client cannot override `BLOCK`; changing amount or market version invalidates the preview; mobile uses an accessible `Drawer`.
 
-## Slice 5 — Wallet and transaction lifecycle
+## Slice 4 — Wallet and transaction lifecycle
 
 **Scope:** connect/switch network, exact transaction review, user signing, rejection, pending, confirmed, and failed states.
 
@@ -48,7 +40,7 @@ Slices are ordered vertical increments. Each slice can be reviewed and demoed in
 
 **Exit gate:** no server signer; wallet rejection leaves no position; unknown receipt is reconciled by hash; transaction link is copyable and accessible.
 
-## Slice 6 — Positions
+## Slice 5 — Positions
 
 **Scope:** `/positions`, detail route, filters, timeline, projection lag, and refresh after transaction confirmation.
 
@@ -56,7 +48,7 @@ Slices are ordered vertical increments. Each slice can be reviewed and demoed in
 
 **Exit gate:** lifecycle states map one-to-one to documented enums; no client-only “success” state survives a reload.
 
-## Slice 7 — Settlement and redeem
+## Slice 6 — Settlement and redeem
 
 **Scope:** finalized/void summary, EIP-712 review, signature required, submitted, confirmed, expired, and manual fallback.
 
