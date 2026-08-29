@@ -4,6 +4,8 @@
 
 **Goal:** Rebuild the existing `/radar` Slice 0 surface to match the approved desktop composition while using the exact Oraclelane Figma foundation tokens, preserving the typed API boundary, and providing real responsive filter and refresh interactions.
 
+> **Delivery naming:** This plan ships as **Slice 0 foundation + radar preview**. The radar surface is included to prove the shell, typed read boundary, filter state, and refresh behavior end to end; it does not represent the full Market Radar product slice. Market Case File is the next product feature. Wallet, trade, and redeem remain deferred to their own approved slices.
+
 **Architecture:** Keep `/radar` as a server entry that fetches the initial typed `MarketListResponse`, then hand interaction ownership to a client-side `RadarSurface`. Keep global navigation in `AppShell`; place filter state, desktop rail, mobile dialog, semantic market list, refresh state, and filtered-empty state inside the radar feature. Separate exact design tokens from layout CSS so foundation fidelity can be tested directly.
 
 **Tech Stack:** Next.js 15 App Router, React 19, TypeScript 5.8, CSS custom properties, Zod-validated OpenAPI types, Vitest 3, Testing Library, MSW.
