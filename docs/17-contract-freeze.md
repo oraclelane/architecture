@@ -6,7 +6,7 @@
 
 This is a **design-input freeze** and now includes the resolved owner session, position detail, and signed redeem boundaries. The provider and consumer must still add contract tests for these paths before integration work is considered complete.
 
-**Slice 2 amendment (2026-08-30):** the thesis boundary is proposed for freeze through [ADR-0010](adr/0010-bind-theses-to-market-and-evidence.md). It adds server-owned market/evidence binding, idempotency, drivers/risks, cache metadata, and distinct rejected/unavailable errors. Frontend implementation must wait for ADR acceptance and contract fixtures.
+**Slice 2 amendment (2026-08-30):** the thesis boundary is accepted and frozen through [ADR-0010](adr/0010-bind-theses-to-market-and-evidence.md). It adds server-owned market/evidence binding, idempotency, drivers/risks, cache metadata, and distinct rejected/unavailable errors. Frontend implementation may begin against generated types after the required contract fixtures are added.
 
 ## What is frozen
 

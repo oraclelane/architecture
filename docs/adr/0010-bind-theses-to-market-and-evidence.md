@@ -1,7 +1,7 @@
 # ADR-0010: Bind every thesis to a market snapshot and evidence packet
 
 **Date**: 2026-08-30
-**Status**: proposed
+**Status**: accepted
 **Deciders**: Oraclelane team
 
 ## Context
