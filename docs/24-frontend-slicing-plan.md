@@ -22,7 +22,7 @@ Slices are ordered vertical increments. Each slice can be reviewed and demoed in
 
 **Contract:** `POST /theses`.
 
-**Exit gate:** thesis cannot render an unknown citation; expired thesis is visibly unusable for preview; no-trade remains a valid state.
+**Exit gate:** ADR-0010 and the amended OpenAPI are accepted; thesis cannot render an unknown citation or partial rejected output; market/evidence binding is preserved; expired thesis is visibly unusable for preview; `NO_TRADE` remains a complete valid state; idempotency and rate-limit behavior are tested.
 
 ## Slice 3 — Safety Gate and Trade Drawer
 

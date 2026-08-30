@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Oraclelane API
-  version: 1.0.0
+  version: 1.1.0
   description: Task-oriented API for DreamDEX Event Contract discovery, thesis, trade preparation, and settlement projections.
 servers:
   - url: https://api.oraclelane.app/api/v1
@@ -44,11 +44,22 @@ paths:
   /theses:
     post:
       operationId: createThesis
+      description: Creates or returns an expiry-bound advisory thesis for the server-validated market snapshot. The client cannot submit prompts or evidence.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, minLength: 16, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$'}
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ThesisRequest'}}}}
       responses:
-        '201': {description: Thesis, content: {application/json: {schema: {$ref: '#/components/schemas/ThesisResponse'}}}}
+        '200': {description: Still-valid cached thesis, content: {application/json: {schema: {$ref: '#/components/schemas/ThesisResponse'}}}}
+        '201': {description: Newly generated thesis, content: {application/json: {schema: {$ref: '#/components/schemas/ThesisResponse'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/StateConflict'}
         '422': {$ref: '#/components/responses/ValidationError'}
         '429': {$ref: '#/components/responses/RateLimited'}
+        '502': {$ref: '#/components/responses/UpstreamRejected'}
+        '503': {$ref: '#/components/responses/UpstreamUnavailable'}
   /trade-previews:
     post:
       operationId: createTradePreview
@@ -171,33 +182,57 @@ components:
     MarketResponse: {type: object, required: [data], properties: {data: {$ref: '#/components/schemas/Market'}}}
     ThesisRequest:
       type: object
+      additionalProperties: false
       required: [marketId, chainId]
       properties:
-        marketId: {type: string}
-        chainId: {type: integer}
-        maxAgeSeconds: {type: integer, minimum: 30, maximum: 3600, default: 300}
+        marketId: {type: string, minLength: 1, maxLength: 256}
+        chainId: {type: integer, enum: [50312, 50313, 5031]}
+        maxAgeSeconds: {type: integer, minimum: 30, maximum: 900, default: 300, description: Maximum acceptable age of a reusable validated thesis. This does not extend expiresAt.}
     Thesis:
       type: object
-      required: [thesisId, direction, confidenceBand, summary, evidence, generatedAt, expiresAt, modelVersion]
+      additionalProperties: false
+      required: [thesisId, marketId, chainId, marketVersion, direction, confidenceBand, summary, drivers, risks, evidence, evidenceHash, generatedAt, expiresAt, modelVersion, promptVersion]
       properties:
-        thesisId: {type: string}
+        thesisId: {type: string, minLength: 1}
+        marketId: {type: string, minLength: 1}
+        chainId: {type: integer, enum: [50312, 50313, 5031]}
+        marketVersion: {type: string, minLength: 1, description: Opaque version of the server-validated market snapshot used to generate this thesis.}
         direction: {type: string, enum: [UP, DOWN, NO_TRADE]}
         confidenceBand: {type: string, enum: [LOW, MEDIUM, HIGH]}
-        summary: {type: string, maxLength: 1200}
-        evidence: {type: array, items: {$ref: '#/components/schemas/Evidence'}}
+        summary: {type: string, minLength: 1, maxLength: 1200}
+        drivers: {type: array, minItems: 1, maxItems: 3, items: {type: string, minLength: 1, maxLength: 280}}
+        risks: {type: array, minItems: 1, maxItems: 3, items: {type: string, minLength: 1, maxLength: 280}}
+        evidence: {type: array, minItems: 1, maxItems: 8, items: {$ref: '#/components/schemas/Evidence'}}
+        evidenceHash: {type: string, pattern: '^sha256:[a-f0-9]{64}$', description: Hash of the canonical bounded evidence packet.}
         generatedAt: {type: string, format: date-time}
         expiresAt: {type: string, format: date-time}
-        modelVersion: {type: string}
+        modelVersion: {type: string, minLength: 1, maxLength: 128}
+        promptVersion: {type: string, minLength: 1, maxLength: 128}
     Evidence:
       type: object
-      required: [sourceId, title, url, publishedAt, relevance]
+      additionalProperties: false
+      required: [sourceId, title, url, retrievedAt, relevance]
       properties:
-        sourceId: {type: string}
-        title: {type: string}
-        url: {type: string, format: uri}
-        publishedAt: {type: string, format: date-time}
+        sourceId: {type: string, minLength: 1, maxLength: 128}
+        title: {type: string, minLength: 1, maxLength: 240}
+        url: {type: string, format: uri, pattern: '^https://'}
+        publishedAt: {type: [string, 'null'], format: date-time}
+        retrievedAt: {type: string, format: date-time}
         relevance: {type: string, enum: [PRIMARY, SECONDARY, MARKET_DATA]}
-    ThesisResponse: {type: object, required: [data], properties: {data: {$ref: '#/components/schemas/Thesis'}}}
+    ThesisResponse:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data: {$ref: '#/components/schemas/Thesis'}
+        meta: {$ref: '#/components/schemas/ThesisMeta'}
+    ThesisMeta:
+      type: object
+      additionalProperties: false
+      required: [requestId, cacheStatus]
+      properties:
+        requestId: {type: string, minLength: 1}
+        cacheStatus: {type: string, enum: [HIT, MISS]}
     TradePreviewRequest:
       type: object
       required: [owner, marketId, chainId, outcomeIndex, amount]
@@ -280,6 +315,7 @@ components:
       type: object
       required: [error]
       properties:
+        requestId: {type: string}
         error:
           type: object
           required: [code, message]
@@ -294,4 +330,5 @@ components:
     Forbidden: {description: Wallet session does not own this resource, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     StateConflict: {description: State conflict, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     RateLimited: {description: Rate limited, headers: {Retry-After: {schema: {type: integer}}}, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    UpstreamRejected: {description: Provider output or citations failed validation and no thesis was returned, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
     UpstreamUnavailable: {description: Upstream unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}

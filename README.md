@@ -48,6 +48,7 @@ This repository explains *how the system is built*. Product intent, UX rationale
 | [Frontend slicing plan](docs/24-frontend-slicing-plan.md) | Ordered slices, dependencies, and acceptance gates |
 | [Market Case File design](docs/25-market-case-file-design.md) | Slice 1 product intent, UX anatomy, contract readiness, states, and handoff gates |
 | [Market Case File wireframe handoff](docs/26-market-case-file-wireframe-handoff.md) | Desktop/mobile frames, components, copy, interactions, and accessibility |
+| [Thesis Panel architecture](docs/27-thesis-panel-architecture.md) | Slice 2 contract, state model, validation, caching, security, fixtures, and exit gates |
 | [ADR index](docs/adr/README.md) | Decisions and rejected alternatives |
 
 ## Contract-first rule

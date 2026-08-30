@@ -10,7 +10,7 @@ The canonical HTTP contract is [`contracts/oraclelane.openapi.yaml`](contracts/o
 | `POST /auth/sessions` | establish owner session | verifies wallet signature; returns expiring bearer token |
 | `GET /markets` | populate radar | cursor pagination; freshness included |
 | `GET /markets/{marketId}` | render case file | opaque DreamDEX ID |
-| `POST /theses` | request evidence-backed explanation | rate-limited; expires |
+| `POST /theses` | request evidence-backed explanation | explicit request; idempotent duplicate handling; rate-limited; snapshot/evidence-bound; expires |
 | `POST /trade-previews` | show deterministic preview/gate | no chain write |
 | `POST /transactions/observations` | attach wallet tx hash | idempotent |
 | `GET /positions` | show lifecycle | projection, reconciled to chain |
@@ -36,6 +36,10 @@ The client requests a short-lived challenge for a checksummed address and chain,
 ## Redeem signature semantics
 
 `POST /positions/{positionId}/redeem-intents` creates a bounded, expiring EIP-712 payload. The browser displays it and calls wagmi/viem `signTypedData`. The browser then sends the signature to `POST /redeem-intents/{intentId}/signature`; the API validates domain, owner, nonce, deadline, and intent binding before placing it on a queue for the bounded operator/worker. The operator transaction hash and final status are projected back to the position. A user signature is never logged or accepted for a different position/intent.
+
+## Thesis semantics
+
+`POST /theses` accepts only market identity and a bounded cache-age preference. It requires an idempotency key; the server owns market refresh, evidence retrieval, prompt/model selection, validation, and expiry. A successful artifact is bound to an opaque market version and canonical evidence hash. `NO_TRADE` is success, `502` means the candidate was rejected by schema/citation/policy validation, and `503` means the model or evidence path is temporarily unavailable. Neither failure may degrade into fabricated advice. See [Thesis Panel architecture](27-thesis-panel-architecture.md) and [ADR-0010](adr/0010-bind-theses-to-market-and-evidence.md).
 
 ## Contract workflow
 

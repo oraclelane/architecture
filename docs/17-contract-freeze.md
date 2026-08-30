@@ -6,12 +6,14 @@
 
 This is a **design-input freeze** and now includes the resolved owner session, position detail, and signed redeem boundaries. The provider and consumer must still add contract tests for these paths before integration work is considered complete.
 
+**Slice 2 amendment (2026-08-30):** the thesis boundary is proposed for freeze through [ADR-0010](adr/0010-bind-theses-to-market-and-evidence.md). It adds server-owned market/evidence binding, idempotency, drivers/risks, cache metadata, and distinct rejected/unavailable errors. Frontend implementation must wait for ADR acceptance and contract fixtures.
+
 ## What is frozen
 
 The following shapes are stable inputs for UI/UX and frontend slicing:
 
 - `Market` and `Outcome` discovery data;
-- thesis direction, confidence band, evidence, model version, and expiry;
+- thesis market/evidence binding, direction, confidence band, drivers, risks, evidence, prompt/model versions, and expiry;
 - deterministic `SafetyDecision` and `TradePreview`;
 - transaction observation status;
 - position lifecycle and settlement fields;
@@ -27,7 +29,10 @@ Fixtures must validate against the OpenAPI document and cover:
 | `market-open-fresh` | tradeable market with two outcomes |
 | `market-stale` | rendered but trade blocked |
 | `market-locked` | read-only; no preview allowed |
-| `thesis-valid` | citations, uncertainty, and future expiry |
+| `thesis-valid-up` | citations, uncertainty, snapshot/evidence binding, and future expiry |
+| `thesis-valid-no-trade` | complete successful `NO_TRADE` artifact |
+| `thesis-expired` | evidence remains visible but artifact is unusable for preview |
+| `thesis-rejected` | invalid model output/citations produce no partial artifact |
 | `thesis-unavailable` | API degradation without fabricated advice |
 | `preview-allow` | all safety checks pass |
 | `preview-blocked` | one or more deterministic checks fail |
@@ -61,3 +66,18 @@ Fixtures must validate against the OpenAPI document and cover:
 - That a submitted transaction is confirmed merely because a hash exists.
 - That auto-redeem will always succeed.
 - That protocol addresses, decimals, or token symbols are globally static.
+
+## What Slice 2 UI may assume after ADR-0010 is accepted
+
+- A successful thesis is bound to `chainId`, `marketId`, `marketVersion`, and `evidenceHash`.
+- `NO_TRADE` is a successful direction with complete drivers, risks, citations, and expiry.
+- `502` means the candidate was rejected and no partial model output is safe to render.
+- `503` means the thesis path is temporarily unavailable while Case File facts remain usable.
+- A thesis at or after `expiresAt` cannot feed a later preview.
+
+## What Slice 2 UI must not assume
+
+- That an old thesis matches a refreshed market snapshot.
+- That client-submitted prompts/evidence/model selection are supported.
+- That confidence is a probability, guarantee, or deterministic safety decision.
+- That retrying a rejected candidate will produce a valid result.

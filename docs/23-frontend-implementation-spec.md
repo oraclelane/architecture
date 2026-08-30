@@ -112,10 +112,10 @@ Any component using state, effects, event handlers, or wallet/browser APIs is ex
 - Use one typed fetcher generated from OpenAPI.
 - Query keys include `chainId`, resource ID, filters, and contract/version where relevant.
 - Market radar may use a short stale-while-revalidate window for rendering; a trade preview always triggers a fresh server validation.
-- Thesis responses are cached only by `marketId + snapshotVersion + evidenceHash` and expire with the thesis.
+- Thesis responses are cached only by `chainId + marketId + marketVersion + evidenceHash + promptVersion + modelVersion` and expire with the thesis. The client cannot extend `expiresAt`.
 - Position detail revalidates after a submitted transaction and on explicit user refresh.
 - Abort in-flight requests when a route changes; avoid duplicate global listeners.
-- Recommended query keys are `['markets', chainId, filters]`, `['market', chainId, marketId]`, and `['positions', owner, chainId]`.
+- Recommended query keys are `['markets', chainId, filters]`, `['market', chainId, marketId]`, `['thesis', chainId, marketId]`, and `['positions', owner, chainId]`. A validated thesis artifact also retains its returned market/evidence identity.
 - Retry only idempotent reads with bounded backoff. Never automatically retry wallet rejection, `422`, or `409` responses.
 
 ## Local state ownership
@@ -132,6 +132,8 @@ Any component using state, effects, event handlers, or wallet/browser APIs is ex
 | toast/announcement | app shell | ephemeral |
 
 Never persist private keys, signatures, raw prompts, or an unconfirmed financial outcome in local storage.
+
+Thesis request state is exhaustive: `not_requested`, `loading`, `valid_directional`, `valid_no_trade`, `expired`, `market_conflict`, `rate_limited`, `rejected`, or `unavailable`. Unknown API values fail closed to `unavailable`; rejected partial output is never rendered.
 
 ## Presentation state mapper
 
