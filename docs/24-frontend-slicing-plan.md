@@ -56,6 +56,16 @@ Slices are ordered vertical increments. Each slice can be reviewed and demoed in
 
 **Exit gate:** winning outcome is nullable for void; typed-data fields are displayed before signing; manual fallback remains available after automation failure.
 
+## Slice 7 — Wallet session and health
+
+**Scope:** connector selection, server-issued challenge, explicit signature step, session establishment, expiry and 401 re-authentication, and the operational health read. Protected surfaces stay empty until a session exists rather than rendering an unauthenticated shell.
+
+**Contract:** `POST /auth/challenges`, `POST /auth/sessions`, `GET /health`. The bearer token from `POST /auth/sessions` is required by every operation the OpenAPI document marks `security: bearerAuth`.
+
+**Exit gate:** the signable message is server-authored and signed verbatim, never composed on the client; a session issued for a different address or chain is refused before the credential is stored; the token is held in memory only, so a reload requires a new signature; a `401` on a protected read surfaces an explicit signature request instead of a silent retry; connecting a wallet without signing never counts as an authenticated session.
+
+**Note:** this slice was specified after Slices 0-6 were written, because the session requirement in `11-security-architecture.md` was only exercised once the protected position and trade-preview reads were built. Slice 4 depends on it in practice: `POST /transactions/observations` is a protected endpoint.
+
 ## Slice review checklist
 
 Before a slice is marked complete:
