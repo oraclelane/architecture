@@ -12,3 +12,4 @@
 | [0008](0008-wallet-session-and-redeem-operator-boundary.md) | Use wallet sessions and bounded operator submission for redeem | accepted | 2026-08-28 |
 | [0009](0009-market-case-file-detail-contract.md) | Use a dedicated detail contract for Market Case File data | proposed | 2026-08-30 |
 | [0010](0010-bind-theses-to-market-and-evidence.md) | Bind every thesis to a market snapshot and evidence packet | accepted | 2026-08-30 |
+| [0011](0011-api-runtime-fastify-drizzle-postgres.md) | Use Fastify, Drizzle and Postgres for the API runtime | accepted | 2026-09-04 |
