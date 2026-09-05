@@ -39,7 +39,9 @@ The app has one primary job: help a user understand and safely act on an existin
 1. Global header: Oraclelane mark, network badge, wallet status, help.
 2. Context bar: current page title, freshness timestamp, refresh action.
 3. Main content: cards/tables; no important state is hidden behind hover.
-4. Persistent activity rail on desktop: latest wallet/settlement events.
+4. Session activity log: latest wallet/settlement events, opened from a control in the header.
+
+> **Amended, 2026-09-05.** This was a *persistent* rail docked beside the page on desktop. It cost every route a 240px column plus its gap at all widths above 1180px, and because the row aligned to the top, the space below the rail could not be reclaimed — so all seven routes rendered into roughly 1128px of a 1440px window and left the rest empty. The log marks but never alerts, and it clears on reload, which is the weakest claim on permanent space in the interface. It is now summoned from the header, with a mark on the trigger when it holds something actionable, so the signal survives a closed panel. One behaviour at every width; the rule that hid it below 1180px is gone with it.
 5. Mobile bottom navigation: Radar, Positions, Help; trade actions remain in the content flow.
 
 ## URL/state conventions

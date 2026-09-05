@@ -2,78 +2,142 @@
 
 > **✅ Canonical token source.** This is the token set actually used by the Figma design system and generated screens. Root `DESIGN.md` and `blueprint/docs/16-ux-design-system.md` predate this build and define different (blue-primary / green-primary) palettes — both are now marked superseded and point back here. If code and this doc ever disagree, treat this file as the source of truth for tokens, per its own framing below.
 
-Oraclelane uses the **shadcn/ui neutral design system** as its visual foundation. The CSS variables below are the canonical tokens for Figma and the future frontend. Oraclelane does not introduce a separate brand palette at this stage; product semantics are expressed through shadcn semantic tokens and documented component variants.
+Oraclelane builds on the **shadcn/ui token names**, with a palette of its own.
+
+> **Superseded, 2026-09-05.** This file previously said Oraclelane "does not introduce a separate brand palette at this stage; product semantics are expressed through shadcn semantic tokens." That decision produced a palette in which every token had chroma 0–0.017, `--chart-1` through `--chart-5` shared one hue, and `--card` was identical to `--background` in light mode. The system had no way to say *this is important*, so every panel on a page rendered at the same weight — and the safety gate's `ALLOW` / `WARN` / `BLOCK`, which is the product's core vocabulary, had no visual expression at all. Colour is now admitted, and it carries meaning rather than brand.
+
+Three additions, each with a rule attached:
+
+- **`--signal`** — reserved for chain-confirmed state (fresh, observed, confirmed). It means "the chain says so", never "we thought this looked important".
+- **`--verdict-allow` / `--verdict-warn` / `--verdict-block`** — the safety gate's decision. Colour is a second channel only: the badge still spells the decision and each check still carries a tick or a cross, per WCAG 2.2 AA.
+- **`--surface-sunken`** — a third surface tier below `--background` (base) and `--card` (raised), so panels can differ in weight.
+
+`--chart-1..5` are five separable hues. Their steps were chosen with a validator (lightness band, chroma floor, CVD separation, normal-vision floor, contrast against each mode's surface), not by eye. Outcomes are charted cyan and violet rather than green and red: an outcome is a direction, and colouring UP green would tell a reader the market has a good side.
+
+The values below are the source of truth, mirrored exactly by `apps/web/src/styles/foundation.css`. That file declares raw values only; `globals.css` `@theme inline` is the sole place a token becomes a Tailwind utility, and the sole owner of the radius scale — the two files used to declare `--radius-sm|md|lg|xl` with different values, and the browser silently used one while a test asserted the other.
+
+`apps/web/src/styles/foundation.test.ts` asserts palette **invariants** rather than exact values: both themes define the same tokens, text clears WCAG AA against its surface, raised surfaces separate from the page, and no token has two owners.
 
 ## Canonical shadcn tokens
 
 ```css
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
+  color-scheme: light;
+
+  /* Surfaces: base (page) < raised (panel) > sunken (data well). */
+  --background: oklch(0.96 0.004 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
-  --chart-1: oklch(0.871 0.006 286.286);
-  --chart-2: oklch(0.552 0.016 285.938);
-  --chart-3: oklch(0.442 0.017 285.786);
-  --chart-4: oklch(0.37 0.013 285.805);
-  --chart-5: oklch(0.274 0.006 286.033);
-  --radius: 0.45rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+  --surface-sunken: oklch(0.925 0.005 250);
+
+  --foreground: oklch(0.17 0.01 250);
+  --card-foreground: oklch(0.17 0.01 250);
+  --popover-foreground: oklch(0.17 0.01 250);
+  --muted-foreground: oklch(0.5 0.015 250);
+
+  --primary: oklch(0.22 0.012 250);
+  --primary-foreground: oklch(0.98 0.002 250);
+  --secondary: oklch(0.945 0.005 250);
+  --secondary-foreground: oklch(0.22 0.012 250);
+  --muted: oklch(0.945 0.005 250);
+  --accent: oklch(0.945 0.005 250);
+  --accent-foreground: oklch(0.22 0.012 250);
+
+  --destructive: oklch(0.55 0.22 25);
+  --border: oklch(0.89 0.006 250);
+  --input: oklch(0.87 0.007 250);
+  --ring: oklch(0.55 0.13 198);
+
+  --signal: oklch(0.52 0.12 198);
+  --signal-foreground: oklch(0.99 0.002 250);
+
+  --verdict-allow: oklch(0.5 0.13 152);
+  --verdict-allow-foreground: oklch(0.99 0.002 250);
+  --verdict-warn: oklch(0.55 0.13 78);
+  --verdict-warn-foreground: oklch(0.99 0.002 250);
+  --verdict-block: oklch(0.53 0.21 25);
+  --verdict-block-foreground: oklch(0.99 0.002 250);
+
+  --chart-1: oklch(0.62 0.13 200);
+  --chart-2: oklch(0.53 0.13 152);
+  --chart-3: oklch(0.6 0.13 78);
+  --chart-4: oklch(0.52 0.16 295);
+  --chart-5: oklch(0.56 0.18 15);
+
+  --sidebar: oklch(0.98 0.003 250);
+  --sidebar-foreground: oklch(0.17 0.01 250);
+  --sidebar-primary: oklch(0.22 0.012 250);
+  --sidebar-primary-foreground: oklch(0.98 0.002 250);
+  --sidebar-accent: oklch(0.945 0.005 250);
+  --sidebar-accent-foreground: oklch(0.22 0.012 250);
+  --sidebar-border: oklch(0.89 0.006 250);
+  --sidebar-ring: oklch(0.55 0.13 198);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+
+  --font-sans: var(--font-inter, "Inter"), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains-mono, "JetBrains Mono"), "SFMono-Regular", Consolas, monospace;
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
-  --chart-1: oklch(0.871 0.006 286.286);
-  --chart-2: oklch(0.552 0.016 285.938);
-  --chart-3: oklch(0.442 0.017 285.786);
-  --chart-4: oklch(0.37 0.013 285.805);
-  --chart-5: oklch(0.274 0.006 286.033);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  color-scheme: dark;
+
+  --background: oklch(0.145 0.008 250);
+  --card: oklch(0.225 0.01 250);
+  --popover: oklch(0.225 0.01 250);
+  --surface-sunken: oklch(0.115 0.008 250);
+
+  --foreground: oklch(0.97 0.003 250);
+  --card-foreground: oklch(0.97 0.003 250);
+  --popover-foreground: oklch(0.97 0.003 250);
+  --muted-foreground: oklch(0.7 0.015 250);
+
+  --primary: oklch(0.95 0.005 250);
+  --primary-foreground: oklch(0.19 0.01 250);
+  --secondary: oklch(0.28 0.012 250);
+  --secondary-foreground: oklch(0.97 0.003 250);
+  --muted: oklch(0.28 0.012 250);
+  --accent: oklch(0.28 0.012 250);
+  --accent-foreground: oklch(0.97 0.003 250);
+
+  --destructive: oklch(0.7 0.19 25);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.72 0.13 198);
+
+  --signal: oklch(0.78 0.12 198);
+  --signal-foreground: oklch(0.16 0.01 250);
+
+  --verdict-allow: oklch(0.78 0.14 152);
+  --verdict-allow-foreground: oklch(0.16 0.01 250);
+  --verdict-warn: oklch(0.83 0.13 78);
+  --verdict-warn-foreground: oklch(0.16 0.01 250);
+  --verdict-block: oklch(0.7 0.19 25);
+  --verdict-block-foreground: oklch(0.16 0.01 250);
+
+  --chart-1: oklch(0.65 0.12 200);
+  --chart-2: oklch(0.64 0.14 152);
+  --chart-3: oklch(0.66 0.13 78);
+  --chart-4: oklch(0.6 0.17 292);
+  --chart-5: oklch(0.6 0.17 15);
+
+  --sidebar: oklch(0.225 0.01 250);
+  --sidebar-foreground: oklch(0.97 0.003 250);
+  --sidebar-primary: oklch(0.78 0.12 198);
+  --sidebar-primary-foreground: oklch(0.16 0.01 250);
+  --sidebar-accent: oklch(0.28 0.012 250);
+  --sidebar-accent-foreground: oklch(0.97 0.003 250);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.72 0.13 198);
 }
 ```
 
