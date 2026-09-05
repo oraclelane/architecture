@@ -2,7 +2,9 @@
 
 ## Radar
 
-**Purpose:** help users find a live, understandable market. Desktop uses a two-column card grid with a filter rail; mobile uses a single-column list.
+**Purpose:** help users find a live, understandable market. Desktop uses a bordered market list with a filter rail; mobile uses a single-column list.
+
+> **Resolved, 2026-09-05.** Three documents disagreed about this surface: this file asked for a two-column card grid, `blueprint/docs/17-information-architecture-and-wireframes.md:50` for a three-column grid above 1100px, and the Slice 0 redesign note for a bordered list that "must not become a card grid". The implementation followed the list on `/radar` and cards on `/positions`, which is why the two pages read as different products. The split is now deliberate and stated: **radar is a list** — it is scanned, and rows compare well down a column — while **positions are cards**, because each is a self-contained holding rather than a row in a comparison. The two grid instructions are superseded.
 
 ```text
 [Header: Oraclelane | Shannon | Connect wallet]
